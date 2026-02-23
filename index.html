@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generátor emailových podpisů</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/preview.css">
+</head>
+<body>
+  <div class="sg-app">
+    <!-- Header -->
+    <header class="sg-header">
+      <h1 class="sg-header__title">Generátor podpisů</h1>
+      <div class="sg-header__actions">
+        <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-export" title="Exportovat data">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-import" title="Importovat data">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none">
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="sg-main">
+      <!-- Sidebar -->
+      <aside class="sg-sidebar" id="sidebar">
+        <div class="sg-sidebar__section">
+          <div class="sg-sidebar__label">Firmy</div>
+          <div id="company-list"></div>
+        </div>
+        <div class="sg-sidebar__section">
+          <div class="sg-sidebar__label">Osoby</div>
+          <div id="person-list"></div>
+          <button class="sg-btn sg-btn--ghost sg-btn--sm sg-btn--block" id="btn-add-person" style="margin-top: 8px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Přidat osobu
+          </button>
+        </div>
+      </aside>
+
+      <!-- Editor -->
+      <section class="sg-editor" id="editor">
+        <div class="sg-editor__tabs">
+          <button class="sg-editor__tab sg-editor__tab--active" data-tab="company">Firma</button>
+          <button class="sg-editor__tab" data-tab="person">Osoba</button>
+          <button class="sg-editor__tab" data-tab="signature">Podpis</button>
+        </div>
+
+        <!-- Company Editor Panel -->
+        <div class="sg-editor__panel sg-editor__panel--active" id="panel-company">
+          <div class="sg-card">
+            <div class="sg-card__title">Základní údaje firmy</div>
+            <div class="sg-form-group">
+              <label class="sg-label">Název firmy</label>
+              <input type="text" class="sg-input" id="company-name" placeholder="Název firmy">
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Logo URL</label>
+              <input type="url" class="sg-input" id="company-logo" placeholder="https://example.com/logo.png">
+            </div>
+            <div class="sg-form-row">
+              <div class="sg-form-group">
+                <label class="sg-label">Web</label>
+                <input type="url" class="sg-input" id="company-website" placeholder="https://www.firma.cz">
+              </div>
+              <div class="sg-form-group">
+                <label class="sg-label">E-mail</label>
+                <input type="email" class="sg-input" id="company-email" placeholder="info@firma.cz">
+              </div>
+            </div>
+            <div class="sg-form-row">
+              <div class="sg-form-group">
+                <label class="sg-label">Telefon</label>
+                <input type="tel" class="sg-input" id="company-phone" placeholder="+420 123 456 789">
+              </div>
+              <div class="sg-form-group">
+                <label class="sg-label">Adresa</label>
+                <input type="text" class="sg-input" id="company-address" placeholder="Ulice 123, Praha">
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-card">
+            <div class="sg-card__title">Barvy</div>
+            <div class="sg-form-row">
+              <div class="sg-form-group">
+                <label class="sg-label">Primární</label>
+                <div class="sg-color-picker">
+                  <input type="color" class="sg-color-picker__input" id="company-color-primary" value="#2563eb">
+                  <input type="text" class="sg-input sg-color-picker__hex" id="company-color-primary-hex" value="#2563eb" maxlength="7">
+                </div>
+              </div>
+              <div class="sg-form-group">
+                <label class="sg-label">Sekundární</label>
+                <div class="sg-color-picker">
+                  <input type="color" class="sg-color-picker__input" id="company-color-secondary" value="#6b7280">
+                  <input type="text" class="sg-input sg-color-picker__hex" id="company-color-secondary-hex" value="#6b7280" maxlength="7">
+                </div>
+              </div>
+            </div>
+            <div class="sg-form-row">
+              <div class="sg-form-group">
+                <label class="sg-label">Text</label>
+                <div class="sg-color-picker">
+                  <input type="color" class="sg-color-picker__input" id="company-color-text" value="#1e293b">
+                  <input type="text" class="sg-input sg-color-picker__hex" id="company-color-text-hex" value="#1e293b" maxlength="7">
+                </div>
+              </div>
+              <div class="sg-form-group">
+                <label class="sg-label">Oddělovač</label>
+                <div class="sg-color-picker">
+                  <input type="color" class="sg-color-picker__input" id="company-color-divider" value="#2563eb">
+                  <input type="text" class="sg-input sg-color-picker__hex" id="company-color-divider-hex" value="#2563eb" maxlength="7">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-card">
+            <div class="sg-card__title">
+              Sociální sítě
+              <button class="sg-btn sg-btn--ghost sg-btn--sm" id="btn-add-social">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Přidat
+              </button>
+            </div>
+            <div id="social-links-list"></div>
+          </div>
+        </div>
+
+        <!-- Person Editor Panel -->
+        <div class="sg-editor__panel" id="panel-person">
+          <div id="person-editor-content">
+            <div class="sg-empty">
+              <div class="sg-empty__icon">👤</div>
+              <div class="sg-empty__text">Vyberte osobu ze seznamu nebo přidejte novou</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature Editor Panel -->
+        <div class="sg-editor__panel" id="panel-signature">
+          <div class="sg-card">
+            <div class="sg-card__title">Rozložení</div>
+            <div class="sg-form-group">
+              <div class="sg-toggle-group" id="layout-toggle">
+                <button class="sg-toggle-group__btn sg-toggle-group__btn--active" data-layout="horizontal">Horizontální</button>
+                <button class="sg-toggle-group__btn" data-layout="vertical">Vertikální</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-card">
+            <div class="sg-card__title">Typografie</div>
+            <div class="sg-form-group">
+              <label class="sg-label">Písmo</label>
+              <select class="sg-select" id="sig-font-family">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="Helvetica, sans-serif">Helvetica</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="Georgia, serif">Georgia</option>
+                <option value="Times New Roman, serif">Times New Roman</option>
+                <option value="Tahoma, sans-serif">Tahoma</option>
+                <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+              </select>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Velikost jména</label>
+              <div class="sg-range-group">
+                <input type="range" class="sg-range" id="sig-name-size" min="12" max="24" value="16">
+                <span class="sg-range__value" id="sig-name-size-val">16px</span>
+              </div>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Velikost pozice</label>
+              <div class="sg-range-group">
+                <input type="range" class="sg-range" id="sig-title-size" min="10" max="18" value="13">
+                <span class="sg-range__value" id="sig-title-size-val">13px</span>
+              </div>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Velikost kontaktů</label>
+              <div class="sg-range-group">
+                <input type="range" class="sg-range" id="sig-contact-size" min="10" max="16" value="12">
+                <span class="sg-range__value" id="sig-contact-size-val">12px</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-card">
+            <div class="sg-card__title">Oddělovač</div>
+            <div class="sg-form-group">
+              <div class="sg-toggle-group" id="divider-toggle">
+                <button class="sg-toggle-group__btn sg-toggle-group__btn--active" data-divider="solid">Plný</button>
+                <button class="sg-toggle-group__btn" data-divider="dashed">Čárkovaný</button>
+                <button class="sg-toggle-group__btn" data-divider="none">Žádný</button>
+              </div>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Šířka oddělovače</label>
+              <div class="sg-range-group">
+                <input type="range" class="sg-range" id="sig-divider-width" min="1" max="4" value="2">
+                <span class="sg-range__value" id="sig-divider-width-val">2px</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-card">
+            <div class="sg-card__title">Rozměry</div>
+            <div class="sg-form-row">
+              <div class="sg-form-group">
+                <label class="sg-label">Šířka loga</label>
+                <div class="sg-range-group">
+                  <input type="range" class="sg-range" id="sig-logo-width" min="40" max="200" value="120">
+                  <span class="sg-range__value" id="sig-logo-width-val">120px</span>
+                </div>
+              </div>
+              <div class="sg-form-group">
+                <label class="sg-label">Šířka fotky</label>
+                <div class="sg-range-group">
+                  <input type="range" class="sg-range" id="sig-photo-width" min="30" max="120" value="80">
+                  <span class="sg-range__value" id="sig-photo-width-val">80px</span>
+                </div>
+              </div>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Tvar fotky</label>
+              <div class="sg-toggle-group" id="photo-shape-toggle">
+                <button class="sg-toggle-group__btn sg-toggle-group__btn--active" data-shape="rounded">Kulatá</button>
+                <button class="sg-toggle-group__btn" data-shape="square">Hranatá</button>
+              </div>
+            </div>
+            <div class="sg-form-group">
+              <label class="sg-label">Mezera mezi sekcemi</label>
+              <div class="sg-range-group">
+                <input type="range" class="sg-range" id="sig-section-gap" min="4" max="24" value="12">
+                <span class="sg-range__value" id="sig-section-gap-val">12px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preview Panel -->
+      <aside class="sg-preview" id="preview">
+        <div class="sg-preview__header">
+          <div class="sg-preview__clients">
+            <button class="sg-preview__client-btn sg-preview__client-btn--active" data-client="live">Live</button>
+            <button class="sg-preview__client-btn" data-client="gmail">Gmail</button>
+            <button class="sg-preview__client-btn" data-client="apple">Apple Mail</button>
+            <button class="sg-preview__client-btn" data-client="ios">iOS Mail</button>
+          </div>
+        </div>
+        <div class="sg-preview__frame">
+          <div class="sg-preview__render" id="preview-render">
+            <div class="sg-preview__titlebar">
+              <span class="sg-preview__dot sg-preview__dot--red"></span>
+              <span class="sg-preview__dot sg-preview__dot--yellow"></span>
+              <span class="sg-preview__dot sg-preview__dot--green"></span>
+              <span class="sg-preview__titlebar-text" id="preview-title">Náhled podpisu</span>
+            </div>
+            <div class="sg-preview__content" id="preview-content">
+              <div class="sg-empty">
+                <div class="sg-empty__text">Vyberte firmu a osobu pro zobrazení náhledu</div>
+              </div>
+            </div>
+          </div>
+          <div class="sg-preview__label" id="preview-label"></div>
+        </div>
+        <div class="sg-output">
+          <div class="sg-output__grid">
+            <button class="sg-btn sg-btn--primary sg-btn--sm" id="btn-copy-signature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Kopírovat podpis
+            </button>
+            <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-copy-html">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Kopírovat HTML
+            </button>
+            <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-view-source">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Zdrojový kód
+            </button>
+            <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-install-guide">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Návod k instalaci
+            </button>
+            <button class="sg-btn sg-btn--secondary sg-btn--sm" id="btn-export-apple-mail" style="grid-column: 1 / -1;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export pro Apple Mail
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Modal Container -->
+  <div class="sg-modal-overlay" id="modal-overlay">
+    <div class="sg-modal">
+      <div class="sg-modal__header">
+        <h2 class="sg-modal__title" id="modal-title"></h2>
+        <button class="sg-modal__close" id="modal-close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="sg-modal__body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="sg-toast-container" id="toast-container"></div>
+
+  <!-- JS Modules -->
+  <script src="js/app.js"></script>
+</body>
+</html>

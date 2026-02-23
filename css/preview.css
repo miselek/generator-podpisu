@@ -1,0 +1,78 @@
+/* Preview client-specific frames */
+
+/* Gmail frame */
+.sg-preview__render--gmail .sg-preview__titlebar {
+  background: #f2f2f2;
+}
+
+.sg-preview__render--gmail .sg-preview__content {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: #222222;
+  background: #ffffff;
+}
+
+.sg-preview__render--gmail .sg-preview__separator {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #5f6368;
+}
+
+/* Apple Mail frame */
+.sg-preview__render--apple .sg-preview__titlebar {
+  background: #e8e8e8;
+}
+
+.sg-preview__render--apple .sg-preview__content {
+  font-family: -apple-system, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  color: #000000;
+  background: #ffffff;
+}
+
+/* iOS Mail frame */
+.sg-preview__render--ios {
+  max-width: 375px;
+  margin: 0 auto;
+}
+
+.sg-preview__render--ios .sg-preview__titlebar {
+  background: #f7f7f7;
+  justify-content: center;
+}
+
+.sg-preview__render--ios .sg-preview__dot {
+  display: none;
+}
+
+.sg-preview__render--ios .sg-preview__content {
+  font-family: -apple-system, sans-serif;
+  font-size: 15px;
+  color: #000000;
+  background: #ffffff;
+}
+
+/* Preview label */
+.sg-preview__label {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-sm);
+}
+
+/* Signature content styling reset - prevent generator CSS from affecting signature */
+.sg-preview__signature {
+  all: initial;
+  display: block;
+  font-family: Arial, sans-serif;
+}
+
+.sg-preview__signature * {
+  all: revert;
+}
+
+.sg-preview__signature table {
+  border-collapse: collapse;
+}
