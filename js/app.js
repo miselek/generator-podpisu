@@ -184,7 +184,7 @@ var DEFAULT_COMPANIES = [
     email: 'info@novehorizonty.cz',
     phone: '',
     address: '',
-    colors: { primary: '#1a56db', secondary: '#6b7280', text: '#1e293b', divider: '#1a56db' },
+    colors: { primary: '#1a56db', secondary: '#6b7280', text: '#1e293b', divider: '#1a56db', ring1: '#1a56db', ring2: '#f59e0b', ring3: '#ef4444' },
     fonts: { family: 'Arial, sans-serif', nameFontSize: 16, titleFontSize: 13, contactFontSize: 12 },
     socialLinks: [],
     createdAt: new Date().toISOString(),
@@ -198,7 +198,7 @@ var DEFAULT_COMPANIES = [
     email: 'info@mobilcare.cz',
     phone: '',
     address: '',
-    colors: { primary: '#059669', secondary: '#6b7280', text: '#1e293b', divider: '#059669' },
+    colors: { primary: '#059669', secondary: '#6b7280', text: '#1e293b', divider: '#059669', ring1: '#059669', ring2: '#34d399', ring3: '#f59e0b' },
     fonts: { family: 'Arial, sans-serif', nameFontSize: 16, titleFontSize: 13, contactFontSize: 12 },
     socialLinks: [],
     createdAt: new Date().toISOString(),
@@ -212,7 +212,7 @@ var DEFAULT_COMPANIES = [
     email: 'info@simplemat.cz',
     phone: '',
     address: '',
-    colors: { primary: '#7c3aed', secondary: '#6b7280', text: '#1e293b', divider: '#7c3aed' },
+    colors: { primary: '#7c3aed', secondary: '#6b7280', text: '#1e293b', divider: '#7c3aed', ring1: '#7c3aed', ring2: '#ec4899', ring3: '#f59e0b' },
     fonts: { family: 'Arial, sans-serif', nameFontSize: 16, titleFontSize: 13, contactFontSize: 12 },
     socialLinks: [],
     createdAt: new Date().toISOString(),
@@ -313,14 +313,16 @@ function getPhotoWrapperStyle(sigConfig) {
 }
 
 function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
-  // Ring = gradient stroke (3px) → white gap (5px) → photo
-  var ringWidth = 3;
+  // Ring = gradient stroke (2px) → white gap (5px) → photo
+  var ringWidth = 2;
   var gapWidth = 5;
   var br = sigConfig.photoShape === 'rounded' ? '50%' : '4px';
   var outerSize = sigConfig.photoWidth + ((ringWidth + gapWidth) * 2);
-  var innerWithGap = sigConfig.photoWidth + (gapWidth * 2);
-  var gradientBg = 'background:linear-gradient(135deg, ' + colors.primary + ', ' + colors.divider + ');';
-  var fallbackBg = 'background-color:' + colors.primary + ';';
+  var c1 = colors.ring1 || colors.primary;
+  var c2 = colors.ring2 || colors.divider;
+  var c3 = colors.ring3 || colors.primary;
+  var gradientBg = 'background:conic-gradient(' + c1 + ', ' + c2 + ', ' + c3 + ', ' + c1 + ');';
+  var fallbackBg = 'background-color:' + c1 + ';';
 
   // Outer ring: gradient background, 3px padding = the colored stroke
   var outerTableStyle = makeStyle({ borderRadius: br, width: outerSize + 'px', height: outerSize + 'px', margin: '0', padding: '0' });
@@ -694,7 +696,8 @@ var COMPANY_TEXT_FIELDS = {
 
 var COMPANY_COLOR_FIELDS = {
   'company-color-primary': 'colors.primary', 'company-color-secondary': 'colors.secondary',
-  'company-color-text': 'colors.text', 'company-color-divider': 'colors.divider'
+  'company-color-text': 'colors.text', 'company-color-divider': 'colors.divider',
+  'company-color-ring1': 'colors.ring1', 'company-color-ring2': 'colors.ring2', 'company-color-ring3': 'colors.ring3'
 };
 
 function initCompanyEditor() {
