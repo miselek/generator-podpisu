@@ -314,18 +314,22 @@ function getPhotoWrapperStyle(sigConfig) {
 
 function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
   var borderWidth = 3;
+  var outerSize = sigConfig.photoWidth + (borderWidth * 2);
   var br = sigConfig.photoShape === 'rounded' ? '50%' : '4px';
   var gradientBg = 'background:linear-gradient(135deg, ' + colors.primary + ', ' + colors.divider + ');';
   var fallbackBg = 'background-color:' + colors.primary + ';';
+
+  var outerTableStyle = makeStyle({ borderRadius: br, width: outerSize + 'px', height: outerSize + 'px', margin: '0', padding: '0' });
   var outerTdStyle = 'border-radius:' + br + '; ' + fallbackBg + ' ' + gradientBg
-    + ' line-height:0; font-size:0; padding:' + borderWidth + 'px;';
+    + ' line-height:0; font-size:0; padding:' + borderWidth + 'px;'
+    + ' width:' + outerSize + 'px; height:' + outerSize + 'px;';
   var innerTdStyle = makeStyle({ borderRadius: br, overflow: 'hidden',
     width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px',
     lineHeight: '0', fontSize: '0' });
   var imgStyle = makeStyle({ display: 'block', border: '0',
     width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px', borderRadius: br });
 
-  return '<table cellpadding="0" cellspacing="0" border="0">'
+  return '<table cellpadding="0" cellspacing="0" border="0" style="' + outerTableStyle + '">'
     + '<tr><td style="' + outerTdStyle + '">'
     + '<table cellpadding="0" cellspacing="0" border="0">'
     + '<tr><td style="' + innerTdStyle + '">'
