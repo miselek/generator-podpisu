@@ -313,16 +313,25 @@ function getPhotoWrapperStyle(sigConfig) {
 }
 
 function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
-  var borderWidth = 3;
-  var outerSize = sigConfig.photoWidth + (borderWidth * 2);
+  // Ring = gradient stroke (3px) → white gap (5px) → photo
+  var ringWidth = 3;
+  var gapWidth = 5;
   var br = sigConfig.photoShape === 'rounded' ? '50%' : '4px';
+  var outerSize = sigConfig.photoWidth + ((ringWidth + gapWidth) * 2);
+  var innerWithGap = sigConfig.photoWidth + (gapWidth * 2);
   var gradientBg = 'background:linear-gradient(135deg, ' + colors.primary + ', ' + colors.divider + ');';
   var fallbackBg = 'background-color:' + colors.primary + ';';
 
+  // Outer ring: gradient background, 3px padding = the colored stroke
   var outerTableStyle = makeStyle({ borderRadius: br, width: outerSize + 'px', height: outerSize + 'px', margin: '0', padding: '0' });
   var outerTdStyle = 'border-radius:' + br + '; ' + fallbackBg + ' ' + gradientBg
-    + ' line-height:0; font-size:0; padding:' + borderWidth + 'px;'
-    + ' width:' + outerSize + 'px; height:' + outerSize + 'px;';
+    + ' line-height:0; font-size:0; padding:' + ringWidth + 'px;';
+
+  // White gap: covers gradient, leaves only the outer ring visible
+  var gapTdStyle = makeStyle({ borderRadius: br, backgroundColor: '#ffffff',
+    padding: gapWidth + 'px', lineHeight: '0', fontSize: '0' });
+
+  // Inner clip for photo
   var innerTdStyle = makeStyle({ borderRadius: br, overflow: 'hidden',
     width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px',
     lineHeight: '0', fontSize: '0' });
@@ -331,10 +340,11 @@ function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
 
   return '<table cellpadding="0" cellspacing="0" border="0" style="' + outerTableStyle + '">'
     + '<tr><td style="' + outerTdStyle + '">'
-    + '<table cellpadding="0" cellspacing="0" border="0">'
-    + '<tr><td style="' + innerTdStyle + '">'
+    + '<table cellpadding="0" cellspacing="0" border="0"><tr><td style="' + gapTdStyle + '">'
+    + '<table cellpadding="0" cellspacing="0" border="0"><tr><td style="' + innerTdStyle + '">'
     + '<img src="' + esc(photoUrl) + '" alt="' + esc(altText) + '" '
     + 'style="' + imgStyle + '" width="' + sigConfig.photoWidth + '" height="' + sigConfig.photoWidth + '" />'
+    + '</td></tr></table>'
     + '</td></tr></table>'
     + '</td></tr></table>';
 }
