@@ -372,21 +372,14 @@ function buildHorizontalSignature(company, person, sigConfig) {
   var config = { colors: company.colors, fonts: company.fonts };
   var vf = person.visibleFields;
   var gap = sigConfig.sectionGap;
+
+  // LEFT COLUMN: only photo (no logo)
   var leftContent = '';
-
-  if (vf.companyLogo && company.logoUrl) {
-    leftContent += '<img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" />';
-  }
   if (vf.photo && person.photoUrl) {
-    if (leftContent) {
-      leftContent += '<table cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;"><tr><td style="padding-top:' + gap + 'px;">'
-        + buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors)
-        + '</td></tr></table>';
-    } else {
-      leftContent += buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors);
-    }
+    leftContent += buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors);
   }
 
+  // RIGHT COLUMN: name, position, contacts, company info, custom fields, social, then logo at bottom
   var rightRows = '';
   if (vf.name && person.name) {
     rightRows += '<tr><td style="' + getNameStyle(config) + '">' + esc(person.name) + '</td></tr>';
@@ -416,6 +409,11 @@ function buildHorizontalSignature(company, person, sigConfig) {
   if (vf.socialLinks && company.socialLinks && company.socialLinks.length > 0) {
     var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(s.url) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
     if (icons) rightRows += '<tr><td style="padding-top:8px;">' + icons + '</td></tr>';
+  }
+
+  // Logo at the bottom of the right column
+  if (vf.companyLogo && company.logoUrl) {
+    rightRows += '<tr><td style="padding-top:' + gap + 'px;"><img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" /></td></tr>';
   }
 
   var dividerStyle = getDividerStyle(config, sigConfig, 'vertical');
@@ -457,8 +455,7 @@ function buildVerticalSignature(company, person, sigConfig) {
   var gap = sigConfig.sectionGap;
   var rows = '';
 
-  if (vf.companyLogo && company.logoUrl) rows += '<tr><td style="padding-bottom:' + gap + 'px;"><img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" /></td></tr>';
-
+  // Photo row (built separately for position control)
   var photoRow = '';
   if (vf.photo && person.photoUrl) {
     photoRow = '<tr><td style="padding-bottom:' + gap + 'px;">'
@@ -499,6 +496,11 @@ function buildVerticalSignature(company, person, sigConfig) {
   if (vf.socialLinks && company.socialLinks && company.socialLinks.length > 0) {
     var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(s.url) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
     if (icons) rows += '<tr><td style="padding-top:8px;">' + icons + '</td></tr>';
+  }
+
+  // Logo at the bottom (after text/contacts)
+  if (vf.companyLogo && company.logoUrl) {
+    rows += '<tr><td style="padding-top:' + gap + 'px;"><img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" /></td></tr>';
   }
 
   if (photoOnBottom && photoRow) rows += photoRow;
