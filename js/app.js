@@ -221,9 +221,9 @@ var DEFAULT_COMPANIES = [
 ];
 
 var DEFAULT_SIGNATURE_CONFIGS = {
-  company_nh: { companyId: 'company_nh', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', sectionGap: 12, lineSpacing: 4 },
-  company_mc: { companyId: 'company_mc', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', sectionGap: 12, lineSpacing: 4 },
-  company_sm: { companyId: 'company_sm', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', sectionGap: 12, lineSpacing: 4 }
+  company_nh: { companyId: 'company_nh', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', photoPosition: 'left', sectionGap: 12, lineSpacing: 4 },
+  company_mc: { companyId: 'company_mc', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', photoPosition: 'left', sectionGap: 12, lineSpacing: 4 },
+  company_sm: { companyId: 'company_sm', layout: 'horizontal', dividerStyle: 'solid', dividerWidth: 2, logoWidth: 120, photoWidth: 80, photoShape: 'rounded', photoPosition: 'left', sectionGap: 12, lineSpacing: 4 }
 };
 
 function createDefaultPerson(companyId) {
@@ -312,6 +312,29 @@ function getPhotoWrapperStyle(sigConfig) {
   return makeStyle({ borderRadius: br, overflow: 'hidden', width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px', lineHeight: '0', fontSize: '0' });
 }
 
+function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
+  var borderWidth = 3;
+  var br = sigConfig.photoShape === 'rounded' ? '50%' : '4px';
+  var gradientBg = 'background:linear-gradient(135deg, ' + colors.primary + ', ' + colors.divider + ');';
+  var fallbackBg = 'background-color:' + colors.primary + ';';
+  var outerTdStyle = 'border-radius:' + br + '; ' + fallbackBg + ' ' + gradientBg
+    + ' line-height:0; font-size:0; padding:' + borderWidth + 'px;';
+  var innerTdStyle = makeStyle({ borderRadius: br, overflow: 'hidden',
+    width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px',
+    lineHeight: '0', fontSize: '0' });
+  var imgStyle = makeStyle({ display: 'block', border: '0',
+    width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px', borderRadius: br });
+
+  return '<table cellpadding="0" cellspacing="0" border="0">'
+    + '<tr><td style="' + outerTdStyle + '">'
+    + '<table cellpadding="0" cellspacing="0" border="0">'
+    + '<tr><td style="' + innerTdStyle + '">'
+    + '<img src="' + esc(photoUrl) + '" alt="' + esc(altText) + '" '
+    + 'style="' + imgStyle + '" width="' + sigConfig.photoWidth + '" height="' + sigConfig.photoWidth + '" />'
+    + '</td></tr></table>'
+    + '</td></tr></table>';
+}
+
 function getSocialIconStyle() {
   return makeStyle({ display: 'inline-block', border: '0', verticalAlign: 'middle' });
 }
@@ -355,11 +378,13 @@ function buildHorizontalSignature(company, person, sigConfig) {
     leftContent += '<img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" />';
   }
   if (vf.photo && person.photoUrl) {
-    var ptStyle = leftContent ? 'margin-top:' + gap + 'px;' : '';
-    leftContent += '<table cellpadding="0" cellspacing="0" border="0" style="margin:0; padding:0;' + ptStyle + '"><tr>'
-      + '<td style="' + getPhotoWrapperStyle(sigConfig) + '">'
-      + '<img src="' + esc(person.photoUrl) + '" alt="' + esc(person.name) + '" style="' + getPhotoStyle(sigConfig) + '" width="' + sigConfig.photoWidth + '" height="' + sigConfig.photoWidth + '" />'
-      + '</td></tr></table>';
+    if (leftContent) {
+      leftContent += '<table cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;"><tr><td style="padding-top:' + gap + 'px;">'
+        + buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors)
+        + '</td></tr></table>';
+    } else {
+      leftContent += buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors);
+    }
   }
 
   var rightRows = '';
@@ -399,15 +424,28 @@ function buildHorizontalSignature(company, person, sigConfig) {
 
   var hasLeft = leftContent.length > 0;
   var hasRight = rightRows.length > 0;
+  var photoOnRight = sigConfig.photoPosition === 'right';
 
   var html = '<table cellpadding="0" cellspacing="0" border="0" style="' + getTableStyle(600) + '"><tr>';
-  if (hasLeft) {
-    html += '<td style="vertical-align:top; text-align:left; padding-right:' + gap + 'px;">' + leftContent + '</td>';
-    if (dividerCell && hasRight) html += dividerCell;
-  }
-  if (hasRight) {
-    var leftPad = (hasLeft || dividerCell) ? 'padding-left:' + gap + 'px;' : '';
-    html += '<td style="vertical-align:top; ' + leftPad + '"><table cellpadding="0" cellspacing="0" border="0"><tbody>' + rightRows + '</tbody></table></td>';
+  if (photoOnRight) {
+    if (hasRight) {
+      var rPad = hasLeft ? 'padding-right:' + gap + 'px;' : '';
+      html += '<td style="vertical-align:top; ' + rPad + '"><table cellpadding="0" cellspacing="0" border="0"><tbody>' + rightRows + '</tbody></table></td>';
+    }
+    if (dividerCell && hasLeft && hasRight) html += dividerCell;
+    if (hasLeft) {
+      var lPad = hasRight ? 'padding-left:' + gap + 'px;' : '';
+      html += '<td style="vertical-align:top; text-align:left; ' + lPad + '">' + leftContent + '</td>';
+    }
+  } else {
+    if (hasLeft) {
+      html += '<td style="vertical-align:top; text-align:left; padding-right:' + gap + 'px;">' + leftContent + '</td>';
+      if (dividerCell && hasRight) html += dividerCell;
+    }
+    if (hasRight) {
+      var leftPad = (hasLeft || dividerCell) ? 'padding-left:' + gap + 'px;' : '';
+      html += '<td style="vertical-align:top; ' + leftPad + '"><table cellpadding="0" cellspacing="0" border="0"><tbody>' + rightRows + '</tbody></table></td>';
+    }
   }
   html += '</tr></table>';
   return html;
@@ -420,7 +458,16 @@ function buildVerticalSignature(company, person, sigConfig) {
   var rows = '';
 
   if (vf.companyLogo && company.logoUrl) rows += '<tr><td style="padding-bottom:' + gap + 'px;"><img src="' + esc(company.logoUrl) + '" alt="' + esc(company.name) + '" width="' + sigConfig.logoWidth + '" style="display:block; border:0; max-width:' + sigConfig.logoWidth + 'px; margin:0; padding:0;" /></td></tr>';
-  if (vf.photo && person.photoUrl) rows += '<tr><td style="padding-bottom:' + gap + 'px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="' + getPhotoWrapperStyle(sigConfig) + '"><img src="' + esc(person.photoUrl) + '" alt="' + esc(person.name) + '" style="' + getPhotoStyle(sigConfig) + '" width="' + sigConfig.photoWidth + '" height="' + sigConfig.photoWidth + '" /></td></tr></table></td></tr>';
+
+  var photoRow = '';
+  if (vf.photo && person.photoUrl) {
+    photoRow = '<tr><td style="padding-bottom:' + gap + 'px;">'
+      + buildPhotoHtml(person.photoUrl, person.name, sigConfig, company.colors)
+      + '</td></tr>';
+  }
+
+  var photoOnBottom = sigConfig.photoPosition === 'right';
+  if (!photoOnBottom && photoRow) rows += photoRow;
 
   var dividerStyle = getDividerStyle(config, sigConfig, 'horizontal');
   if (dividerStyle) rows += '<tr><td style="' + dividerStyle + '; padding:0; margin:0;">&nbsp;</td></tr>';
@@ -453,6 +500,8 @@ function buildVerticalSignature(company, person, sigConfig) {
     var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(s.url) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
     if (icons) rows += '<tr><td style="padding-top:8px;">' + icons + '</td></tr>';
   }
+
+  if (photoOnBottom && photoRow) rows += photoRow;
 
   return '<table cellpadding="0" cellspacing="0" border="0" style="' + getTableStyle(600) + '"><tbody>' + rows + '</tbody></table>';
 }
@@ -885,12 +934,16 @@ function removeCustomField(index) {
 function initSignatureEditor() {
   initToggleGroup('layout-toggle', 'layout', function(val) {
     var c = getActiveSignatureConfig(); if (c) updateSignatureConfig(c.companyId, { layout: val });
+    updatePhotoPositionLabels(val);
   });
   initToggleGroup('divider-toggle', 'divider', function(val) {
     var c = getActiveSignatureConfig(); if (c) updateSignatureConfig(c.companyId, { dividerStyle: val });
   });
   initToggleGroup('photo-shape-toggle', 'shape', function(val) {
     var c = getActiveSignatureConfig(); if (c) updateSignatureConfig(c.companyId, { photoShape: val });
+  });
+  initToggleGroup('photo-position-toggle', 'position', function(val) {
+    var c = getActiveSignatureConfig(); if (c) updateSignatureConfig(c.companyId, { photoPosition: val });
   });
 
   var fontSelect = document.getElementById('sig-font-family');
@@ -950,6 +1003,8 @@ function populateSignatureEditor() {
   setToggleValue('layout-toggle', 'layout', config.layout);
   setToggleValue('divider-toggle', 'divider', config.dividerStyle);
   setToggleValue('photo-shape-toggle', 'shape', config.photoShape);
+  setToggleValue('photo-position-toggle', 'position', config.photoPosition || 'left');
+  updatePhotoPositionLabels(config.layout);
 }
 
 function setRangeValue(inputId, valueId, val) {
@@ -965,6 +1020,20 @@ function setToggleValue(groupId, dataAttr, value) {
   group.querySelectorAll('.sg-toggle-group__btn').forEach(function(btn) {
     btn.classList.toggle('sg-toggle-group__btn--active', btn.dataset[dataAttr] === value);
   });
+}
+
+function updatePhotoPositionLabels(layout) {
+  var group = document.getElementById('photo-position-toggle');
+  if (!group) return;
+  var btns = group.querySelectorAll('.sg-toggle-group__btn');
+  if (btns.length < 2) return;
+  if (layout === 'vertical') {
+    btns[0].textContent = 'Nahoře';
+    btns[1].textContent = 'Dole';
+  } else {
+    btns[0].textContent = 'Vlevo';
+    btns[1].textContent = 'Vpravo';
+  }
 }
 
 // ============================================
