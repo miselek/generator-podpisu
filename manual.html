@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jak si nastavit emailový podpis - Nové Horizonty</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+    .header { background: linear-gradient(135deg, #1a56db, #3b82f6); color: #fff; padding: 40px 24px; text-align: center; }
+    .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .header p { font-size: 16px; opacity: 0.9; }
+    .container { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+    .toc { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .toc h2 { font-size: 18px; margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: #1a56db; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .section { background: #fff; border-radius: 12px; padding: 28px 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .section h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: #1a56db; }
+    .section h2 .emoji { margin-right: 8px; }
+    .section .subtitle { font-size: 14px; color: #64748b; margin-bottom: 20px; }
+    .section h3 { font-size: 17px; font-weight: 600; margin: 20px 0 10px; }
+    .step { display: flex; gap: 14px; margin-bottom: 18px; }
+    .step-num { flex-shrink: 0; width: 32px; height: 32px; background: #1a56db; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; margin-top: 2px; }
+    .step-content { flex: 1; }
+    .step-content p { margin-bottom: 6px; }
+    .step-content strong { color: #0f172a; }
+    .tip { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 14px; }
+    .tip strong { color: #1a56db; }
+    .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 14px; }
+    .warning strong { color: #b45309; }
+    .path { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-family: 'SF Mono', Menlo, monospace; font-size: 13px; color: #475569; white-space: nowrap; }
+    .btn-link { display: inline-block; background: #1a56db; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 8px 0; }
+    .btn-link:hover { background: #1e40af; }
+    .platform-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .platform-tab { padding: 8px 16px; border: 2px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; color: #64748b; transition: all 0.15s; }
+    .platform-tab:hover { border-color: #1a56db; color: #1a56db; }
+    .platform-tab.active { background: #1a56db; color: #fff; border-color: #1a56db; }
+    .platform-content { display: none; }
+    .platform-content.active { display: block; }
+    .divider { height: 1px; background: #e2e8f0; margin: 24px 0; }
+    .img-placeholder { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; color: #94a3b8; font-size: 13px; margin: 12px 0; }
+    .footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+    @media (max-width: 600px) {
+      .header h1 { font-size: 22px; }
+      .section { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Jak si nastavit emailový podpis</h1>
+  <p>Krok za krokem pro tým Nové Horizonty</p>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h2>Obsah</h2>
+    <ol>
+      <li><a href="#cast1">Vytvoření podpisu v generátoru</a></li>
+      <li><a href="#cast2">Vložení podpisu do Gmailu (počítač)</a></li>
+      <li><a href="#cast3">Vložení podpisu do Gmail aplikace (Android)</a></li>
+      <li><a href="#cast4">Vložení podpisu do Gmail aplikace (iPhone)</a></li>
+      <li><a href="#faq">Časté dotazy a řešení problémů</a></li>
+    </ol>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ČÁST 1: Generátor -->
+  <!-- ============================================ -->
+  <div class="section" id="cast1">
+    <h2><span class="emoji">1.</span> Vytvoření podpisu v generátoru</h2>
+    <p class="subtitle">Zabere to 2-3 minuty</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p>Otevřete v prohlížeči (Chrome, Edge, Firefox) generátor podpisů:</p>
+        <a class="btn-link" href="https://miselek.github.io/generator-podpisu/" target="_blank">Otevřít generátor podpisů</a>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p>V levém panelu v sekci <strong>FIRMY</strong> klikněte na <strong>Nové Horizonty</strong>.</p>
+        <p>Otevře se záložka <strong>Firma</strong> s údaji firmy (web, email, barvy). Tyto údaje jsou předvyplněné a obvykle je nemusíte měnit.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p>V levém panelu v sekci <strong>OSOBY</strong> klikněte na <strong>+ Přidat osobu</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p>Přepněte se na záložku <strong>Osoba</strong> (nahoře) a vyplňte svoje údaje:</p>
+        <ul>
+          <li><strong>Jméno a příjmení</strong> - např. Martina Caltová</li>
+          <li><strong>Pozice</strong> - např. Manažerka a vedoucí kanceláře</li>
+          <li><strong>E-mail</strong> - váš pracovní email</li>
+          <li><strong>Mobil</strong> - váš telefon (nepovinné)</li>
+          <li><strong>Foto URL</strong> - odkaz na vaši profilovou fotku (viz tip níže)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Kde vzít odkaz na fotku?</strong> Fotka musí být online (jako odkaz/URL). Můžete použít třeba fotku z firemního webu - klikněte na ni pravým tlačítkem a zvolte "Kopírovat adresu obrázku". Nebo nahrajte fotku na <a href="https://postimages.org/" target="_blank">postimages.org</a> (zdarma) a zkopírujte "Direct link".
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <p>Vpravo uvidíte <strong>živý náhled</strong> vašeho podpisu. Zkontrolujte, že vše vypadá správně.</p>
+        <p>Můžete se přepnout na záložku <strong>Gmail</strong> v náhledu, abyste viděli jak bude podpis vypadat přímo v Gmailu.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <p>Klikněte na zelené tlačítko <strong>"Kopírovat podpis"</strong> pod náhledem.</p>
+        <p>Zobrazí se potvrzení "Zkopírováno!" - podpis je teď ve vaší schránce.</p>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>Důležité:</strong> Po kliknutí na "Kopírovat podpis" rovnou přejděte do Gmailu a vložte ho. Nekopírujte mezitím nic jiného, jinak o zkopírovaný podpis přijdete.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ČÁST 2: Gmail na počítači -->
+  <!-- ============================================ -->
+  <div class="section" id="cast2">
+    <h2><span class="emoji">2.</span> Gmail na počítači (Mac / Windows)</h2>
+    <p class="subtitle">Po zkopírování podpisu z generátoru</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p>Otevřete <strong>Gmail</strong> v prohlížeči (<a href="https://mail.google.com" target="_blank">mail.google.com</a>).</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p>Klikněte na <strong>ikonu ozubeného kola</strong> (vpravo nahoře).</p>
+        <p>Klikněte na <strong>"Zobrazit všechna nastavení"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p>Zůstaňte na záložce <strong>"Obecné"</strong> a scrollujte dolů, dokud nenajdete sekci <strong>"Podpis"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p>Klikněte na <strong>"Vytvořit nový"</strong> (nebo vyberte existující podpis, pokud ho chcete přepsat).</p>
+        <p>Pokud vytváříte nový, zadejte název - např. <strong>"Nové Horizonty"</strong> a potvrďte.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <p>Klikněte do <strong>textového pole podpisu</strong> (bílé pole vpravo od názvu).</p>
+        <p><strong>Smažte</strong> vše, co tam je (Ctrl+A a Delete).</p>
+        <p>Vložte podpis:</p>
+        <ul>
+          <li>Windows: <strong>Ctrl + V</strong></li>
+          <li>Mac: <strong>Cmd + V</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <p>Pod sekcí Podpis nastavte <strong>"Výchozí nastavení podpisu"</strong>:</p>
+        <ul>
+          <li><strong>Pro nové e-maily:</strong> vyberte váš nový podpis ("Nové Horizonty")</li>
+          <li><strong>Při odpovídání/přeposílání:</strong> vyberte váš nový podpis ("Nové Horizonty")</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <p>Scrollujte na konec stránky a klikněte na <strong>"Uložit změny"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Ověření:</strong> Klikněte na "Vytvořit nový email" - na konci zprávy by měl být váš nový podpis s fotkou, barevným rámečkem a všemi kontaktními údaji.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ČÁST 3: Gmail Android -->
+  <!-- ============================================ -->
+  <div class="section" id="cast3">
+    <h2><span class="emoji">3.</span> Gmail na Androidu</h2>
+    <p class="subtitle">Gmail aplikace na telefonu podporuje pouze textové podpisy (bez obrázků a formátování)</p>
+
+    <div class="warning">
+      <strong>Omezení Androidu:</strong> Gmail aplikace na Androidu <strong>nepodporuje HTML podpisy</strong> (s obrázky a formátováním). Můžete nastavit pouze jednoduchý textový podpis. Podpis s fotkou a formátováním se ale zobrazí správně u příjemců, protože Gmail na počítači automaticky přidá váš podpis ke každému emailu - viz tip níže.
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p>Otevřete aplikaci <strong>Gmail</strong> na telefonu.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>tři čárky</strong> (hamburger menu, vlevo nahoře).</p>
+        <p>Scrollujte dolů a klepněte na <strong>"Nastavení"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>váš emailový účet</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>"Podpis na mobilu"</strong> (nebo "Mobile Signature").</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <p>Zadejte jednoduchý textový podpis, např.:</p>
+        <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin: 8px 0; font-size: 14px; white-space: pre-line;">--
+Martina Caltová
+Manažerka a vedoucí kanceláře
+Nové Horizonty
+caltova.martina@novehorizonty.cx
+www.novehorizonty.cx</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>"OK"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Lepší varianta:</strong> V Gmailu na počítači nastavte podpis z generátoru (viz Část 2) a v nastavení Gmailu zaškrtněte u podpisu volbu <strong>"Vložit tento podpis před citovaný text v odpovědích"</strong>. Gmail pak bude automaticky přidávat plný HTML podpis i k emailům odeslaným z telefonu (pokud máte zapnutou synchronizaci). Na mobilu můžete podpis na mobilu vypnout (nechat prázdný), aby se nepřidával dvakrát.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- ČÁST 4: Gmail iPhone -->
+  <!-- ============================================ -->
+  <div class="section" id="cast4">
+    <h2><span class="emoji">4.</span> Gmail na iPhonu / iPadu</h2>
+    <p class="subtitle">Gmail aplikace na iOS podporuje pouze textové podpisy</p>
+
+    <div class="warning">
+      <strong>Omezení iPhonu:</strong> Stejně jako na Androidu, Gmail aplikace na iPhonu <strong>nepodporuje HTML podpisy</strong>. Můžete nastavit pouze jednoduchý text. Platí stejný tip jako pro Android (viz výše).
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p>Otevřete aplikaci <strong>Gmail</strong> na iPhonu.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>tři čárky</strong> (vlevo nahoře) a pak na <strong>"Nastavení"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>váš emailový účet</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <p>Klepněte na <strong>"Nastavení podpisu"</strong>.</p>
+        <p>Zapněte přepínač <strong>"Podpis na mobilu"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <p>Zadejte jednoduchý textový podpis (stejný jako v příkladu pro Android):</p>
+        <div style="background: #f1f5f9; padding: 12px 16px; border-radius: 8px; margin: 8px 0; font-size: 14px; white-space: pre-line;">--
+Martina Caltová
+Manažerka a vedoucí kanceláře
+Nové Horizonty
+caltova.martina@novehorizonty.cx
+www.novehorizonty.cx</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <p>Vraťte se zpět - podpis se uloží automaticky.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Nejlepší řešení pro mobily (Android i iPhone):</strong> Nastavte si plný HTML podpis v Gmailu na počítači (Část 2). Když pak píšete email z mobilu a odpovídáte na vlákno, Gmail servery automaticky připojí váš plný podpis. Na mobilní aplikaci nechte podpis prázdný nebo jen jednoduchý textový, abyste neměli podpis dvakrát.
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- FAQ -->
+  <!-- ============================================ -->
+  <div class="section" id="faq">
+    <h2><span class="emoji">5.</span> Časté dotazy</h2>
+
+    <h3>Podpis se vložil jako prostý text (bez formátování)</h3>
+    <p>V Gmailu zkontrolujte, že při psaní emailu <strong>nemáte zapnutý režim "Prostý text"</strong>. Při psaní nového emailu klikněte na tři tečky (dole vpravo v okně zprávy) a ověřte, že volba "Režim prostého textu" <strong>není</strong> zaškrtnutá.</p>
+
+    <div class="divider"></div>
+
+    <h3>Fotka se nezobrazuje</h3>
+    <p>Zkontrolujte, že URL fotky je platná - otevřete ji v novém tabu prohlížeče. Fotka musí být veřejně přístupná (ne na Google Disku s omezeným přístupem). Doporučujeme nahrát fotku na <a href="https://postimages.org/" target="_blank">postimages.org</a> a použít "Direct link".</p>
+
+    <div class="divider"></div>
+
+    <h3>Můžu si podpis upravit později?</h3>
+    <p>Ano. Vraťte se do generátoru, upravte údaje a znovu klikněte "Kopírovat podpis". Pak v Gmailu přejděte do Nastavení, vymažte starý podpis a vložte nový.</p>
+
+    <div class="divider"></div>
+
+    <h3>Podpis vypadá u příjemce jinak</h3>
+    <p>Různé emailové klienty (Outlook, Apple Mail, apod.) zobrazují podpisy mírně odlišně. V generátoru můžete přepínat náhled mezi Gmail, Apple Mail a iOS Mail, abyste viděli přibližný výsledek. Gmail je nejspolehlivější.</p>
+
+    <div class="divider"></div>
+
+    <h3>Chci změnit barvy nebo rozložení</h3>
+    <p>V generátoru přepněte na záložku <strong>"Podpis"</strong> (nahoře) - najdete tam nastavení rozložení, písma, oddělovače a rozměrů. Barvy (včetně gradientu rámečku fotky) nastavíte v záložce <strong>"Firma"</strong>.</p>
+
+    <div class="divider"></div>
+
+    <h3>Potřebuji pomoct</h3>
+    <p>Obraťte se na správce generátoru podpisů. V případě technických potíží s Gmailem vám pomůže <a href="https://support.google.com/mail/answer/8395" target="_blank">nápověda Google</a>.</p>
+  </div>
+
+  <div class="footer">
+    Nové Horizonty &middot; Návod k nastavení emailového podpisu
+  </div>
+
+</div>
+
+</body>
+</html>
