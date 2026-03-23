@@ -157,6 +157,7 @@ function exportAllData() {
     companies: loadData('companies'),
     persons: loadData('persons'),
     signatureConfigs: loadData('signatureConfigs'),
+    presets: loadData('presets'),
     exportedAt: new Date().toISOString(),
     version: 1
   };
@@ -169,6 +170,7 @@ function importAllData(data) {
   saveData('companies', data.companies);
   saveData('persons', data.persons);
   if (data.signatureConfigs) saveData('signatureConfigs', data.signatureConfigs);
+  if (data.presets) saveData('presets', data.presets);
 }
 
 // ============================================
@@ -320,23 +322,23 @@ function ensureAbsoluteUrl(url) {
 }
 
 function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
-  // Ring = gradient stroke (2px) → white gap (5px) → photo
-  var ringWidth = 2;
-  var gapWidth = 5;
+  // Ring = 3 nested borders (1px each, 3 colors) → white gap (4px) → photo
+  // Uses border instead of conic-gradient for Gmail compatibility
+  var gapWidth = 4;
+  var ringTotal = 3; // 3 x 1px borders
   var br = sigConfig.photoShape === 'rounded' ? '50%' : '4px';
-  var outerSize = sigConfig.photoWidth + ((ringWidth + gapWidth) * 2);
+  var outerSize = sigConfig.photoWidth + (gapWidth * 2) + (ringTotal * 2);
   var c1 = colors.ring1 || colors.primary;
   var c2 = colors.ring2 || colors.divider;
   var c3 = colors.ring3 || colors.primary;
-  var gradientBg = 'background:conic-gradient(' + c1 + ', ' + c2 + ', ' + c3 + ', ' + c1 + ');';
-  var fallbackBg = 'background-color:' + c1 + ';';
 
-  // Outer ring: gradient background, 3px padding = the colored stroke
+  var ringStyle = function(color) {
+    return 'border:1px solid ' + color + '; border-radius:' + br + '; line-height:0; font-size:0; padding:0;';
+  };
+
   var outerTableStyle = makeStyle({ borderRadius: br, width: outerSize + 'px', height: outerSize + 'px', margin: '0', padding: '0' });
-  var outerTdStyle = 'border-radius:' + br + '; ' + fallbackBg + ' ' + gradientBg
-    + ' line-height:0; font-size:0; padding:' + ringWidth + 'px;';
 
-  // White gap: covers gradient, leaves only the outer ring visible
+  // White gap
   var gapTdStyle = makeStyle({ borderRadius: br, backgroundColor: '#ffffff',
     padding: gapWidth + 'px', lineHeight: '0', fontSize: '0' });
 
@@ -348,11 +350,15 @@ function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
     width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px', borderRadius: br });
 
   return '<table cellpadding="0" cellspacing="0" border="0" style="' + outerTableStyle + '">'
-    + '<tr><td style="' + outerTdStyle + '">'
+    + '<tr><td style="' + ringStyle(c1) + '">'
+    + '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="' + ringStyle(c2) + '">'
+    + '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="' + ringStyle(c3) + '">'
     + '<table cellpadding="0" cellspacing="0" border="0"><tr><td style="' + gapTdStyle + '">'
     + '<table cellpadding="0" cellspacing="0" border="0"><tr><td style="' + innerTdStyle + '">'
     + '<img src="' + esc(photoUrl) + '" alt="' + esc(altText) + '" '
     + 'style="' + imgStyle + '" width="' + sigConfig.photoWidth + '" height="' + sigConfig.photoWidth + '" />'
+    + '</td></tr></table>'
+    + '</td></tr></table>'
     + '</td></tr></table>'
     + '</td></tr></table>'
     + '</td></tr></table>';
@@ -1455,6 +1461,114 @@ function pad(n) { return n < 10 ? '0' + n : '' + n; }
 // AUTO-SAVE
 // ============================================
 
+// ============================================
+// PRESETS (Oblíbené šablony)
+// ============================================
+
+function loadPresets() {
+  return loadData('presets') || [];
+}
+
+function savePresets(presets) {
+  saveData('presets', presets);
+}
+
+function capturePreset(name) {
+  var company = getActiveCompany();
+  var config = getActiveSignatureConfig();
+  if (!company || !config) return null;
+  return {
+    id: 'preset_' + Date.now(),
+    name: name,
+    createdAt: new Date().toISOString(),
+    colors: JSON.parse(JSON.stringify(company.colors)),
+    fonts: JSON.parse(JSON.stringify(company.fonts)),
+    signatureConfig: {
+      layout: config.layout, dividerStyle: config.dividerStyle, dividerWidth: config.dividerWidth,
+      logoWidth: config.logoWidth, photoWidth: config.photoWidth, photoShape: config.photoShape,
+      photoPosition: config.photoPosition, sectionGap: config.sectionGap, lineSpacing: config.lineSpacing
+    }
+  };
+}
+
+function applyPreset(presetId) {
+  var presets = loadPresets();
+  var preset = presets.find(function(p) { return p.id === presetId; });
+  if (!preset) return;
+  var company = getActiveCompany();
+  if (!company) return;
+  updateCompany(company.id, { colors: JSON.parse(JSON.stringify(preset.colors)), fonts: JSON.parse(JSON.stringify(preset.fonts)) });
+  updateSignatureConfig(company.id, JSON.parse(JSON.stringify(preset.signatureConfig)));
+  populateCompanyEditor();
+  populateSignatureEditor();
+  updatePreview();
+  showToast('Šablona "' + preset.name + '" byla použita');
+}
+
+function deletePreset(presetId) {
+  var presets = loadPresets();
+  presets = presets.filter(function(p) { return p.id !== presetId; });
+  savePresets(presets);
+  renderPresets();
+}
+
+function renderPresets() {
+  var container = document.getElementById('presets-list');
+  if (!container) return;
+  var presets = loadPresets();
+  if (presets.length === 0) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--color-text-muted);padding:4px 0;">Zatím žádné uložené šablony</div>';
+    return;
+  }
+  container.innerHTML = presets.map(function(p) {
+    var dots = '';
+    if (p.colors) {
+      var dc = [p.colors.ring1 || p.colors.primary, p.colors.ring2 || p.colors.divider, p.colors.ring3 || p.colors.primary];
+      dots = dc.map(function(c) { return '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + c + ';margin-right:3px;vertical-align:middle;border:1px solid rgba(0,0,0,0.1);"></span>'; }).join('');
+    }
+    return '<div class="sg-social-row" style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--color-border);">'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(p.name) + '</div>'
+      + '<div style="margin-top:2px;">' + dots + '</div>'
+      + '</div>'
+      + '<button class="sg-btn sg-btn--ghost sg-btn--sm" data-preset-apply="' + p.id + '" title="Použít šablonu">Použít</button>'
+      + '<button class="sg-btn sg-btn--ghost sg-btn--sm" data-preset-delete="' + p.id + '" title="Smazat šablonu" style="color:var(--color-text-muted);">'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>'
+      + '</button>'
+      + '</div>';
+  }).join('');
+
+  container.querySelectorAll('[data-preset-apply]').forEach(function(btn) {
+    btn.addEventListener('click', function() { applyPreset(btn.dataset.presetApply); });
+  });
+  container.querySelectorAll('[data-preset-delete]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (confirm('Smazat tuto šablonu?')) deletePreset(btn.dataset.presetDelete);
+    });
+  });
+}
+
+function initPresets() {
+  var saveBtn = document.getElementById('btn-save-preset');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      var company = getActiveCompany();
+      var defaultName = company ? company.name + ' - standard' : 'Nová šablona';
+      var name = prompt('Název šablony:', defaultName);
+      if (!name) return;
+      var preset = capturePreset(name);
+      if (!preset) return;
+      var presets = loadPresets();
+      presets.push(preset);
+      savePresets(presets);
+      renderPresets();
+      showToast('Šablona "' + name + '" uložena');
+    });
+  }
+  renderPresets();
+  subscribe('ui:companyChanged', renderPresets);
+}
+
 function autoSave() {
   subscribe('companies:changed', function() { saveData('companies', state.companies); });
   subscribe('persons:changed', function() { saveData('persons', state.persons); });
@@ -1496,6 +1610,7 @@ function init() {
   initOutputPanel();
   initTabs();
   initExportImport();
+  initPresets();
   autoSave();
 
   if (state.companies.length > 0) {
