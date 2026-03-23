@@ -312,6 +312,13 @@ function getPhotoWrapperStyle(sigConfig) {
   return makeStyle({ borderRadius: br, overflow: 'hidden', width: sigConfig.photoWidth + 'px', height: sigConfig.photoWidth + 'px', lineHeight: '0', fontSize: '0' });
 }
 
+function ensureAbsoluteUrl(url) {
+  if (!url) return url;
+  url = url.trim();
+  if (/^https?:\/\//i.test(url)) return url;
+  return 'https://' + url;
+}
+
 function buildPhotoHtml(photoUrl, altText, sigConfig, colors) {
   // Ring = gradient stroke (2px) → white gap (5px) → photo
   var ringWidth = 2;
@@ -411,7 +418,7 @@ function buildHorizontalSignature(company, person, sigConfig) {
   if (contactParts.length > 0) rightRows += '<tr><td style="' + getContactStyle(config) + '">' + contactParts.join(makeSeparator(company.colors.secondary)) + '</td></tr>';
 
   var companyParts = [];
-  if (vf.companyWeb && company.website) companyParts.push('<a href="' + esc(company.website) + '" style="' + getLinkStyle(config) + '" target="_blank">' + esc(company.website.replace(/^https?:\/\//, '')) + '</a>');
+  if (vf.companyWeb && company.website) companyParts.push('<a href="' + esc(ensureAbsoluteUrl(company.website)) + '" style="' + getLinkStyle(config) + '" target="_blank">' + esc(company.website.replace(/^https?:\/\//, '')) + '</a>');
   if (vf.companyAddress && company.address) companyParts.push('<span style="' + getContactStyle(config) + '">' + esc(company.address) + '</span>');
   if (vf.companyPhone && company.phone) companyParts.push('<a href="tel:' + esc(company.phone.replace(/\s/g, '')) + '" style="' + getLinkStyle(config) + '">' + esc(company.phone) + '</a>');
   if (vf.companyEmail && company.email) companyParts.push('<a href="mailto:' + esc(company.email) + '" style="' + getLinkStyle(config) + '">' + esc(company.email) + '</a>');
@@ -423,7 +430,7 @@ function buildHorizontalSignature(company, person, sigConfig) {
   }
 
   if (vf.socialLinks && company.socialLinks && company.socialLinks.length > 0) {
-    var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(s.url) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
+    var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(ensureAbsoluteUrl(s.url)) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
     if (icons) rightRows += '<tr><td style="padding-top:8px;">' + icons + '</td></tr>';
   }
 
@@ -498,7 +505,7 @@ function buildVerticalSignature(company, person, sigConfig) {
   if (contactParts.length > 0) rows += '<tr><td style="' + getContactStyle(config) + '">' + contactParts.join(makeSeparator(company.colors.secondary)) + '</td></tr>';
 
   var companyParts = [];
-  if (vf.companyWeb && company.website) companyParts.push('<a href="' + esc(company.website) + '" style="' + getLinkStyle(config) + '" target="_blank">' + esc(company.website.replace(/^https?:\/\//, '')) + '</a>');
+  if (vf.companyWeb && company.website) companyParts.push('<a href="' + esc(ensureAbsoluteUrl(company.website)) + '" style="' + getLinkStyle(config) + '" target="_blank">' + esc(company.website.replace(/^https?:\/\//, '')) + '</a>');
   if (vf.companyAddress && company.address) companyParts.push('<span style="' + getContactStyle(config) + '">' + esc(company.address) + '</span>');
   if (vf.companyPhone && company.phone) companyParts.push('<a href="tel:' + esc(company.phone.replace(/\s/g, '')) + '" style="' + getLinkStyle(config) + '">' + esc(company.phone) + '</a>');
   if (vf.companyEmail && company.email) companyParts.push('<a href="mailto:' + esc(company.email) + '" style="' + getLinkStyle(config) + '">' + esc(company.email) + '</a>');
@@ -510,7 +517,7 @@ function buildVerticalSignature(company, person, sigConfig) {
   }
 
   if (vf.socialLinks && company.socialLinks && company.socialLinks.length > 0) {
-    var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(s.url) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
+    var icons = company.socialLinks.filter(function(s) { return s.url && s.iconUrl; }).map(function(s) { return '<a href="' + esc(ensureAbsoluteUrl(s.url)) + '" target="_blank" style="text-decoration:none;display:inline-block;margin-right:6px;"><img src="' + esc(s.iconUrl) + '" alt="' + esc(s.platform) + '" width="20" height="20" style="' + getSocialIconStyle() + '" /></a>'; }).join('');
     if (icons) rows += '<tr><td style="padding-top:8px;">' + icons + '</td></tr>';
   }
 
