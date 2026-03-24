@@ -1410,6 +1410,162 @@ function initTabs() {
 }
 
 // ============================================
+// DISTRIBUTION PAGE
+// ============================================
+
+function generateDistributionPage() {
+  var company = getActiveCompany();
+  if (!company) {
+    showToast('Nejprve vyberte firmu', 'error');
+    return;
+  }
+  var sigConfig = getActiveSignatureConfig();
+  if (!sigConfig) {
+    showToast('Chybí konfigurace podpisu', 'error');
+    return;
+  }
+  var persons = state.persons.filter(function(p) { return p.companyId === company.id; });
+  if (persons.length === 0) {
+    showToast('Firma nemá žádné osoby', 'error');
+    return;
+  }
+
+  // Generate signature HTML for each person
+  var cards = persons.map(function(person, idx) {
+    var sigHtml = buildSignature(company, person, sigConfig);
+    if (!sigHtml) return '';
+    var personName = esc(person.name || 'Bez jména');
+    var personPosition = person.position ? ' &mdash; ' + esc(person.position) : '';
+    return ''
+      + '<div class="sig-card" id="person-' + idx + '">'
+      + '  <div class="sig-card-header">'
+      + '    <div>'
+      + '      <div class="sig-card-name">' + personName + personPosition + '</div>'
+      + '      <div class="sig-card-email">' + esc(person.email || '') + '</div>'
+      + '    </div>'
+      + '    <button class="btn-copy" onclick="copySignature(' + idx + ')">'
+      + '      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'
+      + '      Kopírovat podpis'
+      + '    </button>'
+      + '  </div>'
+      + '  <div class="sig-card-preview" id="sig-html-' + idx + '">'
+      + '    ' + sigHtml
+      + '  </div>'
+      + '  <div class="sig-card-status" id="status-' + idx + '"></div>'
+      + '</div>';
+  }).filter(function(c) { return c; }).join('\n');
+
+  var primaryColor = company.colors.primary || '#2563eb';
+  var companyName = esc(company.name);
+  var d = new Date();
+  var dateStr = d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear();
+
+  var pageHtml = '<!DOCTYPE html>\n<html lang="cs">\n<head>\n'
+    + '<meta charset="UTF-8">\n'
+    + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+    + '<title>Podpisy - ' + companyName + '</title>\n'
+    + '<style>\n'
+    + '* { margin: 0; padding: 0; box-sizing: border-box; }\n'
+    + 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f1f5f9; color: #1e293b; padding: 24px; }\n'
+    + '.container { max-width: 900px; margin: 0 auto; }\n'
+    + '.page-header { text-align: center; margin-bottom: 32px; padding: 32px 24px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }\n'
+    + '.page-header h1 { font-size: 24px; color: ' + primaryColor + '; margin-bottom: 8px; }\n'
+    + '.page-header p { font-size: 14px; color: #64748b; }\n'
+    + '.page-header .date { font-size: 12px; color: #94a3b8; margin-top: 4px; }\n'
+    + '.instructions { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; font-size: 14px; color: #1e40af; }\n'
+    + '.instructions strong { display: block; margin-bottom: 4px; }\n'
+    + '.instructions ol { margin: 8px 0 0 20px; }\n'
+    + '.instructions li { margin-bottom: 4px; }\n'
+    + '.sig-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px; overflow: hidden; }\n'
+    + '.sig-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }\n'
+    + '.sig-card-name { font-weight: 600; font-size: 15px; }\n'
+    + '.sig-card-email { font-size: 13px; color: #64748b; margin-top: 2px; }\n'
+    + '.sig-card-preview { padding: 20px; background: #fafafa; border-bottom: 1px solid #e2e8f0; }\n'
+    + '.sig-card-status { padding: 0; overflow: hidden; max-height: 0; transition: max-height 0.3s, padding 0.3s; font-size: 13px; text-align: center; }\n'
+    + '.sig-card-status.visible { padding: 10px 20px; max-height: 50px; }\n'
+    + '.sig-card-status.success { color: #059669; background: #ecfdf5; }\n'
+    + '.sig-card-status.error { color: #dc2626; background: #fef2f2; }\n'
+    + '.btn-copy { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: ' + primaryColor + '; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }\n'
+    + '.btn-copy:hover { opacity: 0.9; }\n'
+    + '.btn-copy:active { opacity: 0.8; }\n'
+    + '.footer { text-align: center; margin-top: 32px; font-size: 12px; color: #94a3b8; }\n'
+    + '@media (max-width: 600px) { .sig-card-header { flex-direction: column; gap: 12px; align-items: flex-start; } }\n'
+    + '</style>\n'
+    + '</head>\n<body>\n'
+    + '<div class="container">\n'
+    + '  <div class="page-header">\n'
+    + '    <h1>' + companyName + ' &mdash; E-mailové podpisy</h1>\n'
+    + '    <p>Najděte své jméno a zkopírujte si svůj podpis do e-mailového klienta.</p>\n'
+    + '    <div class="date">Vygenerováno: ' + dateStr + '</div>\n'
+    + '  </div>\n'
+    + '  <div class="instructions">\n'
+    + '    <strong>Jak na to?</strong>\n'
+    + '    <ol>\n'
+    + '      <li>Najděte svou kartu níže a klikněte na <strong>Kopírovat podpis</strong>.</li>\n'
+    + '      <li>Otevřete nastavení svého e-mailu (Gmail: Nastavení &rarr; Podpis, Outlook: Nastavení &rarr; Pošta &rarr; Podpis).</li>\n'
+    + '      <li>Vložte podpis pomocí <strong>Ctrl+V</strong> (nebo <strong>Cmd+V</strong> na Macu).</li>\n'
+    + '      <li>Uložte nastavení.</li>\n'
+    + '    </ol>\n'
+    + '  </div>\n'
+    + cards + '\n'
+    + '  <div class="footer">Vygenerováno nástrojem Generátor podpisů</div>\n'
+    + '</div>\n'
+    + '<script>\n'
+    + 'function copySignature(idx) {\n'
+    + '  var el = document.getElementById("sig-html-" + idx);\n'
+    + '  var status = document.getElementById("status-" + idx);\n'
+    + '  if (!el) return;\n'
+    + '  var html = el.innerHTML;\n'
+    + '  try {\n'
+    + '    var blob = new Blob([html], { type: "text/html" });\n'
+    + '    var item = new ClipboardItem({ "text/html": blob });\n'
+    + '    navigator.clipboard.write([item]).then(function() {\n'
+    + '      showStatus(status, "Podpis zkopírován do schránky!", "success");\n'
+    + '    }).catch(function() {\n'
+    + '      fallbackCopy(el, status);\n'
+    + '    });\n'
+    + '  } catch(e) {\n'
+    + '    fallbackCopy(el, status);\n'
+    + '  }\n'
+    + '}\n'
+    + 'function fallbackCopy(el, status) {\n'
+    + '  try {\n'
+    + '    var range = document.createRange();\n'
+    + '    range.selectNodeContents(el);\n'
+    + '    var sel = window.getSelection();\n'
+    + '    sel.removeAllRanges();\n'
+    + '    sel.addRange(range);\n'
+    + '    document.execCommand("copy");\n'
+    + '    sel.removeAllRanges();\n'
+    + '    showStatus(status, "Podpis zkopírován do schránky!", "success");\n'
+    + '  } catch(e) {\n'
+    + '    showStatus(status, "Kopírování se nezdařilo. Označte podpis ručně a zkopírujte Ctrl+C.", "error");\n'
+    + '  }\n'
+    + '}\n'
+    + 'function showStatus(el, msg, type) {\n'
+    + '  if (!el) return;\n'
+    + '  el.textContent = msg;\n'
+    + '  el.className = "sig-card-status visible " + type;\n'
+    + '  setTimeout(function() { el.className = "sig-card-status"; }, 3000);\n'
+    + '}\n'
+    + '</script>\n'
+    + '</body>\n</html>';
+
+  // Download the file
+  var blob = new Blob([pageHtml], { type: 'text/html; charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  var safeName = company.name.replace(/[^a-zA-Z0-9\u00C0-\u024F\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+  a.download = 'podpisy-' + safeName + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Distribuční stránka vygenerována (' + persons.length + ' osob)');
+}
+
+// ============================================
 // EXPORT / IMPORT
 // ============================================
 
@@ -1429,6 +1585,9 @@ function initExportImport() {
     URL.revokeObjectURL(url);
     showToast('Data exportována');
   });
+
+  var btnDistribute = document.getElementById('btn-distribute');
+  if (btnDistribute) btnDistribute.addEventListener('click', generateDistributionPage);
 
   var importFile = document.getElementById('import-file');
   var btnImport = document.getElementById('btn-import');
