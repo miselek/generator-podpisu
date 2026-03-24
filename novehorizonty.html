@@ -417,11 +417,11 @@ function buildDownloadableFile(data) {
     + '</ol>\n'
     + '</div>\n'
     + '</div>\n'
-    + '<script>\n'
+    + '<scr' + 'ipt>\n'
     + 'function cs(){var e=document.getElementById("sig-html");try{var b=new Blob([e.innerHTML],{type:"text/html"});var i=new ClipboardItem({"text/html":b});navigator.clipboard.write([i]).then(function(){ss()}).catch(function(){fc(e)})}catch(x){fc(e)}}\n'
     + 'function fc(e){var r=document.createRange();r.selectNodeContents(e);var s=window.getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");s.removeAllRanges();ss()}\n'
     + 'function ss(){var e=document.getElementById("st");e.textContent="Podpis zkop\\u00edrován! Nyní ho vložte do Gmailu (Ctrl+V).";e.className="status ok";setTimeout(function(){e.className="status"},5000)}\n'
-    + '</script>\n</body>\n</html>';
+    + '<\\/scr' + 'ipt>\n</body>\n</html>';
 }
 
 function downloadFile(content, filename) {
